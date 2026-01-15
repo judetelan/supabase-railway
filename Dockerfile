@@ -7,6 +7,9 @@ RUN apk add --no-cache gettext bash
 # Copy kong configuration template
 COPY kong.yml /var/lib/kong/kong.yml.template
 
+# Set proper permissions for kong user
+RUN chown -R kong:kong /var/lib/kong
+
 # Set Kong to run in DB-less mode with the declarative config
 ENV KONG_DATABASE=off \
     KONG_DECLARATIVE_CONFIG=/var/lib/kong/kong.yml \
