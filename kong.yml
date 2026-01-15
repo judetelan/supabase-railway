@@ -31,12 +31,12 @@ basicauth_credentials:
     password: $DASHBOARD_PASSWORD
 
 ###
-### API Routes - RAILWAY INTERNAL NETWORKING
+### API Routes
 ###
 services:
   ## Open Auth routes
   - name: auth-v1-open
-    url: http://supabase-auth.railway.internal:9999/verify
+    url: http://$AUTH_HOST:9999/verify
     routes:
       - name: auth-v1-open
         strip_path: true
@@ -45,7 +45,7 @@ services:
     plugins:
       - name: cors
   - name: auth-v1-open-callback
-    url: http://supabase-auth.railway.internal:9999/callback
+    url: http://$AUTH_HOST:9999/callback
     routes:
       - name: auth-v1-open-callback
         strip_path: true
@@ -54,7 +54,7 @@ services:
     plugins:
       - name: cors
   - name: auth-v1-open-authorize
-    url: http://supabase-auth.railway.internal:9999/authorize
+    url: http://$AUTH_HOST:9999/authorize
     routes:
       - name: auth-v1-open-authorize
         strip_path: true
@@ -65,7 +65,8 @@ services:
 
   ## Secure Auth routes
   - name: auth-v1
-    url: http://supabase-auth.railway.internal:9999/
+    _comment: 'GoTrue: /auth/v1/* -> http://auth:9999/*'
+    url: http://$AUTH_HOST:9999/
     routes:
       - name: auth-v1-all
         strip_path: true
@@ -85,7 +86,8 @@ services:
 
   ## Secure REST routes
   - name: rest-v1
-    url: http://supabase-rest.railway.internal:3000/
+    _comment: 'PostgREST: /rest/v1/* -> http://rest:3000/*'
+    url: http://$REST_HOST:3000/
     routes:
       - name: rest-v1-all
         strip_path: true
@@ -105,7 +107,8 @@ services:
 
   ## Secure GraphQL routes
   - name: graphql-v1
-    url: http://supabase-rest.railway.internal:3000/rpc/graphql
+    _comment: 'PostgREST: /graphql/v1/* -> http://rest:3000/rpc/graphql'
+    url: http://$REST_HOST:3000/rpc/graphql
     routes:
       - name: graphql-v1-all
         strip_path: true
@@ -130,7 +133,8 @@ services:
 
   ## Secure Realtime routes
   - name: realtime-v1-ws
-    url: http://supabase-realtime.railway.internal:4000/socket
+    _comment: 'Realtime: /realtime/v1/* -> ws://realtime:4000/socket/*'
+    url: http://$REALTIME_HOST:4000/socket
     protocol: ws
     routes:
       - name: realtime-v1-ws
@@ -149,7 +153,8 @@ services:
             - admin
             - anon
   - name: realtime-v1-rest
-    url: http://supabase-realtime.railway.internal:4000/api
+    _comment: 'Realtime: /realtime/v1/* -> ws://realtime:4000/socket/*'
+    url: http://$REALTIME_HOST:4000/api
     protocol: http
     routes:
       - name: realtime-v1-rest
@@ -168,9 +173,10 @@ services:
             - admin
             - anon
 
-  ## Storage routes
+  ## Storage routes: the storage server manages its own auth
   - name: storage-v1
-    url: http://supabase-storage.railway.internal:5000/
+    _comment: 'Storage: /storage/v1/* -> http://storage:5000/*'
+    url: http://$STORAGE_HOST:5000/
     routes:
       - name: storage-v1-all
         strip_path: true
@@ -179,20 +185,10 @@ services:
     plugins:
       - name: cors
 
-  ## Edge Functions routes
-  - name: functions-v1
-    url: http://supabase-functions.railway.internal:9000/
-    routes:
-      - name: functions-v1-all
-        strip_path: true
-        paths:
-          - /functions/v1/
-    plugins:
-      - name: cors
-
   ## Analytics routes
   - name: analytics-v1
-    url: http://supabase-analytics.railway.internal:4000/
+    _comment: 'Analytics: /analytics/v1/* -> http://analytics:4000/*'
+    url: http://$ANALYTICS_HOST:4000/
     routes:
       - name: analytics-v1-all
         strip_path: true
@@ -201,7 +197,8 @@ services:
 
   ## Secure Database routes
   - name: meta
-    url: http://supabase-meta.railway.internal:8080/
+    _comment: 'pg-meta: /pg/* -> http://meta:8080/*'
+    url: http://$META_HOST:8080/
     routes:
       - name: meta-all
         strip_path: true
@@ -219,7 +216,8 @@ services:
 
   ## Protected Dashboard - catch all remaining routes
   - name: dashboard
-    url: http://supabase-studio.railway.internal:3000/
+    _comment: 'Studio: /* -> http://studio:3000/*'
+    url: http://$STUDIO_HOST:3000/
     routes:
       - name: dashboard-all
         strip_path: true
