@@ -24,10 +24,7 @@ ENV KONG_DATABASE=off \
 # Expose ports
 EXPOSE 8000 8443
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
-    CMD kong health || exit 1
-
 # Use shell form to substitute env vars and start Kong
+# No HEALTHCHECK - let Railway handle it
 USER kong
-CMD /bin/sh -c 'export KONG_PROXY_LISTEN="0.0.0.0:${PORT:-8000}" && envsubst "\${SUPABASE_ANON_KEY} \${SUPABASE_SERVICE_KEY} \${DASHBOARD_USERNAME} \${DASHBOARD_PASSWORD}" < /home/kong/kong.yml.template > /home/kong/kong.yml && kong prepare -p /usr/local/kong && /usr/local/openresty/nginx/sbin/nginx -p /usr/local/kong -c nginx.conf'
+CMD /bin/sh -c 'echo "PORT is: ${PORT}" && export KONG_PROXY_LISTEN="0.0.0.0:${PORT:-8000}" && echo "KONG_PROXY_LISTEN is: $KONG_PROXY_LISTEN" && envsubst "\${SUPABASE_ANON_KEY} \${SUPABASE_SERVICE_KEY} \${DASHBOARD_USERNAME} \${DASHBOARD_PASSWORD}" < /home/kong/kong.yml.template > /home/kong/kong.yml && kong prepare -p /usr/local/kong && echo "Starting nginx..." && /usr/local/openresty/nginx/sbin/nginx -p /usr/local/kong -c nginx.conf'
