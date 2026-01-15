@@ -27,4 +27,4 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
 
 # Use shell form to substitute env vars and start Kong
 USER kong
-CMD /bin/sh -c 'envsubst "\${SUPABASE_ANON_KEY} \${SUPABASE_SERVICE_KEY} \${DASHBOARD_USERNAME} \${DASHBOARD_PASSWORD}" < /var/lib/kong/kong.yml.template > /var/lib/kong/kong.yml && kong docker-start'
+CMD /bin/sh -c 'envsubst "\${SUPABASE_ANON_KEY} \${SUPABASE_SERVICE_KEY} \${DASHBOARD_USERNAME} \${DASHBOARD_PASSWORD}" < /var/lib/kong/kong.yml.template > /var/lib/kong/kong.yml && kong start'
