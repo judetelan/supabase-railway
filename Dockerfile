@@ -1,8 +1,8 @@
 FROM kong:2.8.1
 
-# Install gettext for envsubst
+# Install gettext for envsubst (Alpine uses apk)
 USER root
-RUN apt-get update && apt-get install -y gettext-base && rm -rf /var/lib/apt/lists/*
+RUN apk add --no-cache gettext
 
 # Copy kong configuration template and entrypoint
 COPY kong.yml /var/lib/kong/kong.yml.template
