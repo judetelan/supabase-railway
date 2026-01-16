@@ -1,41 +1,45 @@
 #!/bin/bash
+
+# exit as soon as any of these commands fail, this prevents starting a database without certificates
 set -e
 
-# Ensure PGDATA is set
+# Make sure there is a PGDATA variable available
 if [ -z "$PGDATA" ]; then
-    export PGDATA=/var/lib/postgresql/data
+  echo "Missing PGDATA variable"
+  exit 1
 fi
 
-# Unset PGHOST and PGPORT to force Unix socket connection during initialization
+# unset PGHOST to force psql to use Unix socket path
+# this is specific to Railway and allows
+# us to use PGHOST after the init
 unset PGHOST
+
+## unset PGPORT also specific to Railway
+## since postgres checks for validity of
+## the value in PGPORT we unset it in case
+## it ends up being empty
 unset PGPORT
 
-# Create data directory structure if needed
-if [ ! -d "$PGDATA/pgdata" ]; then
-    mkdir -p "$PGDATA/pgdata"
-    chown -R postgres:postgres "$PGDATA"
+# For some reason postgres doesn't want to respect our DBDATA variable. So we need to replace it
+sed -i -e 's/data_directory = '\''\/var\/lib\/postgresql\/data'\''/data_directory = '\''\/var\/lib\/postgresql\/data\/pgdata'\''/g' /etc/postgresql/postgresql.conf
+
+# https://github.com/supabase/postgres/blob/c45336c611971037c2cc9fa21045870d225f80d5/Dockerfile-16
+if [[ ! -e "/var/lib/postgresql/data/custom" ]]; then
+  mkdir -p /var/lib/postgresql/data/custom
+  chown postgres:postgres /var/lib/postgresql/data/custom
+fi
+# If custom directory isnt "mounted", copy any changed configs and "mount" it
+if ! [[ -L "/etc/postgresql-custom" && -d "/var/lib/postgresql/data/custom" ]]; then
+  yes | cp -arf /etc/postgresql-custom/* /var/lib/postgresql/data/custom
+  rm -rf /etc/postgresql-custom
+  ln -s /var/lib/postgresql/data/custom /etc/postgresql-custom
 fi
 
-# Update postgresql.conf data_directory if it exists
-if [ -f "/etc/postgresql/postgresql.conf" ]; then
-    sed -i "s|data_directory = '.*'|data_directory = '/var/lib/postgresql/data/pgdata'|" /etc/postgresql/postgresql.conf
-fi
-
-# Create custom config directory if needed
-CUSTOM_CONFIG_DIR="/var/lib/postgresql/data/custom"
-if [ ! -d "$CUSTOM_CONFIG_DIR" ]; then
-    mkdir -p "$CUSTOM_CONFIG_DIR"
-    chown postgres:postgres "$CUSTOM_CONFIG_DIR"
-fi
-
-# Create symlink for custom config if it doesn't exist
-if [ ! -L "/etc/postgresql-custom" ] && [ ! -d "/etc/postgresql-custom" ]; then
-    ln -s "$CUSTOM_CONFIG_DIR" /etc/postgresql-custom 2>/dev/null || true
-fi
-
-# Run the docker entrypoint
-if [ "$LOG_TO_STDOUT" = "true" ]; then
-    exec /docker-entrypoint.sh "$@" 2>&1
+# Call the entrypoint script with the
+# appropriate PGHOST & PGPORT and redirect
+# the output to stdout if LOG_TO_STDOUT is true
+if [[ "$LOG_TO_STDOUT" == "true" ]]; then
+    /usr/local/bin/docker-entrypoint.sh "$@" 2>&1
 else
-    exec /docker-entrypoint.sh "$@"
+    /usr/local/bin/docker-entrypoint.sh "$@"
 fi
