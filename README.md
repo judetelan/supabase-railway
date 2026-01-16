@@ -1,42 +1,48 @@
-# Supabase Kong API Gateway for Railway
+# Supabase Railway
 
-Custom Kong API Gateway image pre-configured for Supabase self-hosting on Railway.
+Self-hosted Supabase components for Railway deployment. Based on [6ixfalls/supabase](https://github.com/6ixfalls/supabase).
 
-## Features
+## Components
 
-- Pre-baked kong.yml configuration for Railway internal networking
-- Environment variable substitution at runtime
-- Configured for all Supabase services (Auth, REST, Realtime, Storage, Functions, etc.)
+### Kong API Gateway (`/kong`)
+- Routes traffic to all Supabase services
+- Handles authentication via API keys
+- Basic auth for dashboard access
 
-## Environment Variables
+### PostgreSQL Database (`/postgres`)
+- Custom Supabase Postgres image with init scripts
+- Sets up required schemas: `_realtime`, `_analytics`, `_supavisor`
+- Configures roles and permissions
 
-Set these in your Railway service:
+## Required Environment Variables
 
+### Kong
 | Variable | Description |
 |----------|-------------|
-| `SUPABASE_ANON_KEY` | Anonymous API key |
-| `SUPABASE_SERVICE_KEY` | Service role API key |
-| `DASHBOARD_USERNAME` | Studio dashboard username |
-| `DASHBOARD_PASSWORD` | Studio dashboard password |
+| `SUPABASE_ANON_KEY` | Anon JWT key |
+| `SUPABASE_SERVICE_KEY` | Service role JWT key |
+| `DASHBOARD_USERNAME` | Studio basic auth username |
+| `DASHBOARD_PASSWORD` | Studio basic auth password |
+| `AUTH_HOST` | Auth service hostname |
+| `REST_HOST` | PostgREST hostname |
+| `REALTIME_HOST` | Realtime service hostname |
+| `STORAGE_HOST` | Storage service hostname |
+| `META_HOST` | Postgres Meta hostname |
+| `STUDIO_HOST` | Studio hostname |
+| `ANALYTICS_HOST` | Analytics hostname |
 
-## Railway Deployment
+### PostgreSQL
+| Variable | Description |
+|----------|-------------|
+| `POSTGRES_USER` | Database admin user |
+| `POSTGRES_PASSWORD` | Database password |
+| `JWT_SECRET` | JWT secret for auth |
+| `JWT_EXP` | JWT expiration time |
 
-1. Create a new service from this repo
-2. Set the required environment variables
-3. Deploy
+## Limitations
 
-The kong.yml uses Railway's internal networking (`servicename.railway.internal`) for service-to-service communication.
+Edge Functions require separate deployment of `ghcr.io/supabase/edge-runtime`.
 
-## Service Routes
+## Credits
 
-| Path | Service |
-|------|---------|
-| `/auth/v1/*` | GoTrue Auth |
-| `/rest/v1/*` | PostgREST |
-| `/graphql/v1` | GraphQL |
-| `/realtime/v1/*` | Realtime |
-| `/storage/v1/*` | Storage API |
-| `/functions/v1/*` | Edge Functions |
-| `/analytics/v1/*` | Logflare |
-| `/pg/*` | Postgres Meta |
-| `/*` | Studio Dashboard |
+Based on the Railway Supabase template by [6ixfalls](https://github.com/6ixfalls/supabase).
