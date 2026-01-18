@@ -1,4 +1,4 @@
-FROM supabase/postgres:15.6.1.107
+FROM supabase/postgres:15.14.1.071
 
 ADD ./realtime.sql /docker-entrypoint-initdb.d/migrations/99-realtime.sql
 ADD ./webhooks.sql /docker-entrypoint-initdb.d/init-scripts/98-webhooks.sql
