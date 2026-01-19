@@ -22,8 +22,8 @@
         basic_auth {
             jude $2b$14$koB6w9O8gLnnREfMdnRe0uHEcfWtMf2M9jspuz/ruIUfauyAOB9Uy
         }
-        reverse_proxy supabase-studio-production-a7b2.up.railway.app:443 {
-            header_up Host supabase-studio-production-a7b2.up.railway.app
+        reverse_proxy supabase-studio-production-daa2.up.railway.app:443 {
+            header_up Host supabase-studio-production-daa2.up.railway.app
             transport http {
                 tls
                 tls_insecure_skip_verify
@@ -75,18 +75,6 @@
     route /functions/v1* {
         reverse_proxy supabase-edge-functions-production.up.railway.app:443 {
             header_up Host supabase-edge-functions-production.up.railway.app
-            transport http {
-                tls
-                tls_insecure_skip_verify
-            }
-        }
-    }
-
-    # Meta/pg routes
-    route /pg* {
-        uri strip_prefix /pg
-        reverse_proxy supabase-meta-production.up.railway.app:443 {
-            header_up Host supabase-meta-production.up.railway.app
             transport http {
                 tls
                 tls_insecure_skip_verify
