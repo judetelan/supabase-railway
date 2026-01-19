@@ -1,6 +1,0 @@
-{
-  "query": "query envConfig($envId: String!) { environment(id: $envId) { id config(decryptVariables: false) } }",
-  "variables": {
-    "envId": "884d5d9c-028b-4a14-95f2-71755edeeaae"
-  }
-}

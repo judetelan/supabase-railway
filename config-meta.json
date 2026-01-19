@@ -1,3 +1,0 @@
-{
-  "query": "mutation { serviceInstanceUpdate(serviceId: \"e598ded1-3a19-446f-993f-aaeaca94c0cb\", environmentId: \"884d5d9c-028b-4a14-95f2-71755edeeaae\", input: { source: { image: \"supabase/postgres-meta:v0.84.2\" } }) }"
-}

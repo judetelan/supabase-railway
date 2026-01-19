@@ -1,6 +1,0 @@
-{
-  "query": "mutation volumeDelete($volumeId: String!) { volumeDelete(volumeId: $volumeId) }",
-  "variables": {
-    "volumeId": "877c8b9d-dcd0-49f5-b585-f59f25c52b45"
-  }
-}

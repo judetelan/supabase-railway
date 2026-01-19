@@ -1,3 +1,0 @@
-{
-  "query": "mutation { serviceInstanceUpdate(serviceId: \"a953e8df-9eca-4b06-8cc5-f5ba9cb63e63\", environmentId: \"884d5d9c-028b-4a14-95f2-71755edeeaae\", input: { source: { image: \"supabase/gotrue:v2.168.0\" } }) }"
-}

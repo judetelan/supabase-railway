@@ -1,48 +1,190 @@
-# Supabase Railway
+# Supabase on Railway
 
-Self-hosted Supabase components for Railway deployment. Based on [6ixfalls/supabase](https://github.com/6ixfalls/supabase).
+[![Deploy on Railway](https://railway.app/button.svg)](https://railway.app/template/supabase)
 
-## Components
+A complete, self-hosted Supabase deployment for Railway with all core services.
 
-### Kong API Gateway (`/kong`)
-- Routes traffic to all Supabase services
-- Handles authentication via API keys
-- Basic auth for dashboard access
+## Services Included
 
-### PostgreSQL Database (`/postgres`)
-- Custom Supabase Postgres image with init scripts
-- Sets up required schemas: `_realtime`, `_analytics`, `_supavisor`
-- Configures roles and permissions
+| Service | Description | Port |
+|---------|-------------|------|
+| **postgres** | PostgreSQL 15 with Supabase extensions | 5432 |
+| **gateway** | Caddy reverse proxy (API gateway) | 8080 |
+| **studio** | Supabase Dashboard UI | 3000 |
+| **edge-functions** | Deno Edge Runtime | 9000 |
+| **imgproxy** | Image transformation service | 8080 |
 
-## Required Environment Variables
+## Quick Start
 
-### Kong
-| Variable | Description |
+### 1. Deploy to Railway
+
+Click the button above or manually:
+
+1. Fork this repository
+2. Create a new Railway project
+3. Add services from the repo (one per folder)
+4. Configure environment variables
+5. Deploy
+
+### 2. Required Environment Variables
+
+Set these in Railway for each service:
+
+#### All Services
+```
+JWT_SECRET=your-super-secret-jwt-token-min-32-chars
+ANON_KEY=your-anon-key
+SERVICE_ROLE_KEY=your-service-role-key
+```
+
+#### Database (postgres)
+```
+POSTGRES_PASSWORD=your-secure-password
+POSTGRES_DB=postgres
+```
+
+#### Gateway
+```
+CORS_ORIGIN=https://your-frontend.com
+```
+
+### 3. Generate API Keys
+
+Use the Supabase key generator or:
+
+```bash
+# Generate JWT secret
+openssl rand -base64 32
+
+# Generate keys using supabase CLI
+supabase gen keys
+```
+
+## Architecture
+
+```
+┌─────────────────────────────────────────────────────────┐
+│                      Internet                           │
+└─────────────────────────┬───────────────────────────────┘
+                          │
+                          ▼
+┌─────────────────────────────────────────────────────────┐
+│                  Gateway (Caddy)                        │
+│              supabase-gateway.railway.app               │
+└─────────────────────────┬───────────────────────────────┘
+                          │
+        ┌─────────────────┼─────────────────┐
+        │                 │                 │
+        ▼                 ▼                 ▼
+┌───────────────┐ ┌───────────────┐ ┌───────────────┐
+│    Studio     │ │ Edge Functions│ │   ImgProxy    │
+│   /studio/*   │ │ /functions/*  │ │  /imgproxy/*  │
+└───────────────┘ └───────────────┘ └───────────────┘
+        │                 │                 │
+        └─────────────────┼─────────────────┘
+                          │
+                          ▼
+┌─────────────────────────────────────────────────────────┐
+│                 PostgreSQL Database                     │
+│                    (postgres)                           │
+└─────────────────────────────────────────────────────────┘
+```
+
+## API Endpoints
+
+All endpoints are available through the gateway:
+
+| Endpoint | Description |
 |----------|-------------|
-| `SUPABASE_ANON_KEY` | Anon JWT key |
-| `SUPABASE_SERVICE_KEY` | Service role JWT key |
-| `DASHBOARD_USERNAME` | Studio basic auth username |
-| `DASHBOARD_PASSWORD` | Studio basic auth password |
-| `AUTH_HOST` | Auth service hostname |
-| `REST_HOST` | PostgREST hostname |
-| `REALTIME_HOST` | Realtime service hostname |
-| `STORAGE_HOST` | Storage service hostname |
-| `META_HOST` | Postgres Meta hostname |
-| `STUDIO_HOST` | Studio hostname |
-| `ANALYTICS_HOST` | Analytics hostname |
+| `/rest/v1/*` | PostgREST API |
+| `/auth/v1/*` | GoTrue Authentication |
+| `/storage/v1/*` | Storage API |
+| `/functions/v1/*` | Edge Functions |
+| `/realtime/v1/*` | Realtime WebSocket |
+| `/studio/*` | Dashboard (protected) |
 
-### PostgreSQL
-| Variable | Description |
-|----------|-------------|
-| `POSTGRES_USER` | Database admin user |
-| `POSTGRES_PASSWORD` | Database password |
-| `JWT_SECRET` | JWT secret for auth |
-| `JWT_EXP` | JWT expiration time |
+## Security
 
-## Limitations
+**Important:** Studio is protected with basic auth.
 
-Edge Functions require separate deployment of `ghcr.io/supabase/edge-runtime`.
+Default credentials (change in production!):
+- **Username:** `jude`
+- **Password:** `143668`
+
+To change credentials, update `gateway/Caddyfile` and generate a new bcrypt hash:
+
+```bash
+docker run --rm caddy caddy hash-password --plaintext 'YourNewPassword'
+```
+
+See [SECURITY-GUIDE.md](./SECURITY-GUIDE.md) for complete security configuration.
+
+## Edge Functions
+
+Create serverless functions in `edge-functions/functions/`:
+
+```typescript
+// edge-functions/functions/my-function/index.ts
+Deno.serve(async (req: Request) => {
+  return new Response(
+    JSON.stringify({ message: "Hello from Edge!" }),
+    { headers: { "Content-Type": "application/json" } }
+  );
+});
+```
+
+See [EDGE-FUNCTIONS-GUIDE.md](./EDGE-FUNCTIONS-GUIDE.md) for complete documentation.
+
+## Folder Structure
+
+```
+supabase-railway/
+├── postgres/           # PostgreSQL with Supabase extensions
+│   ├── Dockerfile
+│   ├── railway.toml
+│   └── *.sql          # Init scripts
+├── gateway/            # Caddy reverse proxy
+│   ├── Dockerfile
+│   ├── Caddyfile
+│   └── railway.toml
+├── studio/             # Supabase Dashboard
+│   ├── Dockerfile
+│   └── railway.toml
+├── edge-functions/     # Deno Edge Runtime
+│   ├── Dockerfile
+│   ├── railway.toml
+│   └── functions/     # Your functions here
+└── imgproxy/           # Image transformations
+    ├── Dockerfile
+    └── railway.toml
+```
+
+## Troubleshooting
+
+### Database not starting
+- Check volume is attached
+- Verify `POSTGRES_PASSWORD` is set
+
+### Studio not loading
+- Ensure gateway is running
+- Check `/studio/*` route in Caddyfile
+
+### Edge functions 404
+- Verify function exists in `functions/` folder
+- Check main router in `functions/main/index.ts`
 
 ## Credits
 
-Based on the Railway Supabase template by [6ixfalls](https://github.com/6ixfalls/supabase).
+Based on work by [6ixfalls](https://github.com/6ixfalls/supabase) and enhanced with:
+- Caddy gateway (replacing Kong)
+- Edge Functions support
+- Security hardening
+- Railway template optimizations
+
+## License
+
+MIT License
+
+---
+
+Built with Supabase and Railway

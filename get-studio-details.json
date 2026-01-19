@@ -1,3 +1,0 @@
-{
-  "query": "query { serviceInstance(id: \"79315862-fdbc-41c6-9f87-a44b1748d1e6\") { id source { image } latestDeployment { status meta } } }"
-}

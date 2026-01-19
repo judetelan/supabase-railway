@@ -1,3 +1,0 @@
-{
-  "query": "mutation { serviceConnect(id: \"0dab5bd3-2d5a-49ef-848e-f7ad5b35f8d4\", input: { repo: \"judetelan/supabase-railway\", branch: \"main\" }) { id } }"
-}

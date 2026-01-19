@@ -1,3 +1,0 @@
-{
-  "query": "mutation { db: serviceInstanceUpdate(serviceId: \"0dab5bd3-2d5a-49ef-848e-f7ad5b35f8d4\", environmentId: \"884d5d9c-028b-4a14-95f2-71755edeeaae\", input: { source: { image: \"ghcr.io/6ixfalls/supabase-postgres:15.8.1.085\" } }) studio: serviceInstanceUpdate(serviceId: \"a0f516fe-3d44-4f45-8599-c3039b98d201\", environmentId: \"884d5d9c-028b-4a14-95f2-71755edeeaae\", input: { source: { image: \"supabase/studio:20250113-83c9420\" } }) minio: serviceInstanceUpdate(serviceId: \"67217548-a1cf-42f0-9f8b-ae329c880c25\", environmentId: \"884d5d9c-028b-4a14-95f2-71755edeeaae\", input: { source: { image: \"minio/minio:latest\" }, startCommand: \"minio server /data --console-address :9001\" }) }"
-}

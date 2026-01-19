@@ -1,3 +1,0 @@
-{
-  "query": "mutation { volumeCreate(input: { projectId: \"f9237de4-e682-4484-9fe8-ac4ea14c9b50\", environmentId: \"884d5d9c-028b-4a14-95f2-71755edeeaae\", serviceId: \"67217548-a1cf-42f0-9f8b-ae329c880c25\", mountPath: \"/data\" }) { id } }"
-}

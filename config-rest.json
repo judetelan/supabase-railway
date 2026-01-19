@@ -1,3 +1,0 @@
-{
-  "query": "mutation { serviceInstanceUpdate(serviceId: \"2e1b4fbf-5b4e-4353-a1ed-1d4bd066294f\", environmentId: \"884d5d9c-028b-4a14-95f2-71755edeeaae\", input: { source: { image: \"postgrest/postgrest:v12.2.3\" } }) }"
-}

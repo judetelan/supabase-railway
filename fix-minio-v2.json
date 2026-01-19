@@ -1,3 +1,0 @@
-{
-  "query": "mutation { serviceInstanceUpdate(serviceId: \"67217548-a1cf-42f0-9f8b-ae329c880c25\", environmentId: \"884d5d9c-028b-4a14-95f2-71755edeeaae\", input: { startCommand: \"/usr/bin/minio server /data --console-address ':9001'\" }) }"
-}

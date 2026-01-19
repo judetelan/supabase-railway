@@ -1,3 +1,0 @@
-{
-  "query": "mutation { serviceInstanceUpdate(serviceId: \"4f11051a-1945-45a2-8a64-3c432397633e\", environmentId: \"884d5d9c-028b-4a14-95f2-71755edeeaae\", input: { source: { image: \"darthsim/imgproxy:v3.8.0\" } }) }"
-}

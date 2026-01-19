@@ -1,0 +1,53 @@
+# Dependencies
+node_modules/
+.npm/
+
+# Environment files
+.env
+.env.*
+*.env
+
+# Secrets - NEVER commit these
+secrets.txt
+*.secret
+*.key
+*.pem
+
+# Railway local config (contains project IDs)
+.railway/
+
+# Temporary files
+*.tmp
+*.temp
+*.log
+*.bak
+
+# API request/response files
+*.json
+!package.json
+!package-lock.json
+!tsconfig.json
+
+# SQL dumps and migrations (use proper migration tool)
+*.sql
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Build artifacts
+dist/
+build/
+*.o
+*.pyc
+
+# Test files at root
+test-*.mjs
+test-*.js

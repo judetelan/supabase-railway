@@ -1,3 +1,0 @@
-{
-  "query": "mutation { volumeCreate(input: { projectId: \"f9237de4-e682-4484-9fe8-ac4ea14c9b50\", environmentId: \"884d5d9c-028b-4a14-95f2-71755edeeaae\", serviceId: \"0dab5bd3-2d5a-49ef-848e-f7ad5b35f8d4\", mountPath: \"/var/lib/postgresql/data\" }) { id } }"
-}
