@@ -1,6 +1,5 @@
 // Database Test Edge Function
-// Invoke with: /functions/v1/db-test
-// Tests database connectivity from Edge Functions
+// Access: /functions/v1/db-test
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
@@ -9,7 +8,7 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-export default async (req: Request): Promise<Response> => {
+Deno.serve(async (req: Request) => {
   // Handle CORS preflight
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
@@ -26,60 +25,30 @@ export default async (req: Request): Promise<Response> => {
           supabaseUrl: supabaseUrl ? "set" : "missing",
           supabaseKey: supabaseKey ? "set" : "missing"
         }),
-        {
-          status: 500,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        }
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    // Try to get the current timestamp from the database
-    const { data, error } = await supabase.rpc('now').single();
-
-    if (error) {
-      // Fallback: try a simple query
-      const { data: tables, error: tablesError } = await supabase
-        .from('_metadata')
-        .select('*')
-        .limit(1);
-
-      return new Response(
-        JSON.stringify({
-          status: "connected",
-          message: "Database connection successful",
-          timestamp: new Date().toISOString(),
-          query_result: tables || "No metadata table",
-          query_error: tablesError?.message
-        }),
-        {
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        }
-      );
-    }
+    // Try a simple query to verify connection
+    const { data, error } = await supabase.from('_realtime').select('*').limit(1);
 
     return new Response(
       JSON.stringify({
         status: "connected",
         message: "Database connection successful",
-        db_timestamp: data,
-        edge_timestamp: new Date().toISOString()
+        function: "db-test",
+        supabaseUrl: supabaseUrl,
+        queryResult: error ? `Query error: ${error.message}` : "Query successful",
+        timestamp: new Date().toISOString()
       }),
-      {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      }
+      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (error) {
     return new Response(
-      JSON.stringify({
-        error: error.message,
-        stack: error.stack
-      }),
-      {
-        status: 500,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      }
+      JSON.stringify({ error: error.message }),
+      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }
-};
+});
