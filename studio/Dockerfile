@@ -1,8 +1,8 @@
-FROM supabase/studio:20240729-ce42139
+FROM supabase/studio:20250113-83c9420
 
 USER root
 
-# Install Caddy for basic auth proxy
+# Install Caddy for basic auth proxy (Alpine-based image)
 RUN apk add --no-cache caddy
 
 # Copy startup script
