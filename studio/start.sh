@@ -22,18 +22,18 @@ cat > /tmp/Caddyfile << CADDYEOF
 
 :3000 {
     handle /api/profile {
-        reverse_proxy localhost:3001
+        reverse_proxy 127.0.0.1:3001
     }
 
     handle /api/platform/profile {
-        reverse_proxy localhost:3001
+        reverse_proxy 127.0.0.1:3001
     }
 
     handle {
         basicauth {
             ${STUDIO_USER} ${STUDIO_HASH}
         }
-        reverse_proxy localhost:3001
+        reverse_proxy 127.0.0.1:3001
     }
 }
 CADDYEOF
@@ -68,7 +68,7 @@ echo "Studio started (PID: $STUDIO_PID)"
 
 # Wait for Studio to be ready
 for i in $(seq 1 60); do
-    if wget -q --spider http://localhost:3001/api/profile 2>/dev/null; then
+    if wget -q --spider http://127.0.0.1:3001/api/profile 2>/dev/null; then
         echo "=== Studio Auth Proxy Ready ==="
         break
     fi
