@@ -1,9 +1,12 @@
+# Get Caddy binary from official image
+FROM caddy:2.7-alpine AS caddy-source
+
 FROM supabase/studio:20250113-83c9420
 
 USER root
 
-# Install Caddy for basic auth proxy (Alpine-based image)
-RUN apk add --no-cache caddy
+# Copy Caddy binary (avoids apk/apt dependency issues)
+COPY --from=caddy-source /usr/bin/caddy /usr/bin/caddy
 
 # Copy startup script
 COPY start.sh /start.sh
