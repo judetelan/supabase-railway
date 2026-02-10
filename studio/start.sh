@@ -13,6 +13,7 @@ fi
 echo "Auth user: $STUDIO_USER"
 
 # Generate Caddyfile with auth credentials
+# Health check paths bypass auth so Railway can verify the service is healthy
 cat > /tmp/Caddyfile << CADDYEOF
 {
     auto_https off
@@ -20,8 +21,12 @@ cat > /tmp/Caddyfile << CADDYEOF
 }
 
 :3000 {
+    handle /api/profile {
+        reverse_proxy localhost:3001
+    }
+
     handle /api/platform/profile {
-        respond \`{"disabled":false}\` 200
+        reverse_proxy localhost:3001
     }
 
     handle {
@@ -33,7 +38,7 @@ cat > /tmp/Caddyfile << CADDYEOF
 }
 CADDYEOF
 
-echo "Caddyfile generated at /tmp/Caddyfile"
+echo "Caddyfile generated."
 
 # Start Caddy on port 3000 first (fast startup, handles health checks immediately)
 caddy run --config /tmp/Caddyfile &
@@ -48,7 +53,6 @@ if [ -f "/app/apps/studio/server.js" ]; then
 elif [ -f "/app/server.js" ]; then
     SERVER_PATH="/app/server.js"
 else
-    # Fallback: search for it
     SERVER_PATH=$(find /app -name "server.js" -path "*/studio/*" 2>/dev/null | head -1)
     if [ -z "$SERVER_PATH" ]; then
         SERVER_PATH=$(find /app -maxdepth 2 -name "server.js" 2>/dev/null | head -1)
@@ -64,7 +68,7 @@ echo "Studio started (PID: $STUDIO_PID)"
 
 # Wait for Studio to be ready
 for i in $(seq 1 60); do
-    if wget -q --spider http://localhost:3001/api/platform/profile 2>/dev/null; then
+    if wget -q --spider http://localhost:3001/api/profile 2>/dev/null; then
         echo "=== Studio Auth Proxy Ready ==="
         break
     fi
