@@ -1,4 +1,4 @@
-FROM supabase/studio:20250113-83c9420
+FROM supabase/studio:20240729-ce42139
 
 USER root
 
