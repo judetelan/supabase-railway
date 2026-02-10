@@ -22,11 +22,11 @@ cat > /tmp/Caddyfile << CADDYEOF
 
 :3000 {
     handle /api/profile {
-        reverse_proxy 127.0.0.1:3001
+        respond "OK" 200
     }
 
     handle /api/platform/profile {
-        reverse_proxy 127.0.0.1:3001
+        respond "OK" 200
     }
 
     handle {
