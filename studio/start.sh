@@ -1,9 +1,13 @@
 #!/bin/sh
 set -e
 
-# Start Studio on internal port 3001
-PORT=3001 node /app/server.js &
+echo "Starting Studio with Caddy auth proxy..."
+
+# Start Studio on internal port 3001 (explicit export overrides Railway's PORT=3000)
+export PORT=3001
+node /app/server.js &
 STUDIO_PID=$!
+export PORT=3000
 
 # Wait for Studio to be ready
 echo "Waiting for Studio to start on port 3001..."

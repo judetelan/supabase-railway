@@ -31,4 +31,6 @@ EXPOSE 3000
 HEALTHCHECK --interval=10s --timeout=5s --start-period=30s --retries=3 \
   CMD wget --no-verbose --tries=1 --spider http://localhost:3000/api/platform/profile || exit 1
 
-CMD ["/start.sh"]
+# Override base image entrypoint so our start.sh runs
+ENTRYPOINT []
+CMD ["/bin/sh", "/start.sh"]
