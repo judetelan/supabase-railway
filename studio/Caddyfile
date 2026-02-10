@@ -1,0 +1,17 @@
+{
+    auto_https off
+    admin off
+}
+
+:3000 {
+    @noauth {
+        path /api/platform/profile
+    }
+    respond @noauth `{"disabled":false}` 200
+
+    basicauth {
+        {$STUDIO_USERNAME:admin} {$STUDIO_PASSWORD_HASH}
+    }
+
+    reverse_proxy localhost:3001
+}
