@@ -156,22 +156,35 @@ const { data: file } = await supabase.storage
 
 ## Studio Password Protection
 
-Studio is protected with HTTP Basic Auth via a Caddy sidecar. To set it up:
+Studio is protected with HTTP Basic Auth via a Caddy sidecar. When you visit Studio, the browser will prompt for username and password.
+
+**Default credentials:**
+- **Username:** `admin`
+- **Password:** `123456`
+
+> **Change these in production!** See below.
+
+### Changing the Studio Password
 
 ```bash
-# 1. Generate a bcrypt password hash
-docker run --rm caddy caddy hash-password --plaintext 'YourSecurePassword'
-# Output: $2a$14$Zkq6...
+# 1. Generate a new bcrypt password hash
+#    Option A: Using Docker
+docker run --rm caddy caddy hash-password --plaintext 'YourNewSecurePassword'
 
-# 2. Set environment variables on supabase-studio service
-railway variables set STUDIO_USERNAME=admin -s supabase-studio
-railway variables set STUDIO_PASSWORD_HASH='$2a$14$Zkq6...' -s supabase-studio
+#    Option B: Using Python
+python -c "import bcrypt; print(bcrypt.hashpw(b'YourNewSecurePassword', bcrypt.gensalt(rounds=14)).decode())"
+
+#    Option C: Using an online bcrypt generator (use cost factor 14)
+
+# 2. Set the new credentials on supabase-studio service
+railway variables set STUDIO_USERNAME=your_username -s supabase-studio
+railway variables set STUDIO_PASSWORD_HASH='$2b$14$YOUR_NEW_HASH_HERE' -s supabase-studio
 
 # 3. Redeploy Studio
 railway up -s supabase-studio
 ```
 
-When you visit Studio, the browser will prompt for username/password.
+If you don't set `STUDIO_USERNAME` or `STUDIO_PASSWORD_HASH` as env vars, the defaults (`admin` / `123456`) are used. Setting the env vars overrides the defaults.
 
 ## API Endpoints
 
