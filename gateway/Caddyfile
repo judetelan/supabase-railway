@@ -7,30 +7,12 @@
     # Health check (no auth required)
     respond /health "OK" 200
 
-    # CORS headers - Use environment variable for allowed origins
-    # Set CORS_ORIGIN to your frontend domain, e.g., "https://myapp.com"
-    # Use "*" only for development
+    # CORS headers
     header {
         Access-Control-Allow-Origin {$CORS_ORIGIN:*}
         Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS, PATCH"
         Access-Control-Allow-Headers "Authorization, Content-Type, apikey, x-client-info, x-request-id, x-supabase-api-version, prefer, x-upsert, range, accept-profile, content-profile"
-        Access-Control-Allow-Credentials "true"
         Access-Control-Expose-Headers "content-range, x-supabase-api-version"
-    }
-
-    # Studio routes - Protected with Basic Auth
-    # Username: jude | Password: 143668
-    route /studio* {
-        basic_auth {
-            jude $2b$14$koB6w9O8gLnnREfMdnRe0uHEcfWtMf2M9jspuz/ruIUfauyAOB9Uy
-        }
-        reverse_proxy supabase-studio-production-daa2.up.railway.app:443 {
-            header_up Host supabase-studio-production-daa2.up.railway.app
-            transport http {
-                tls
-                tls_insecure_skip_verify
-            }
-        }
     }
 
     # OPTIONS preflight
