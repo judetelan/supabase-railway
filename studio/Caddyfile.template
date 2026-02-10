@@ -1,0 +1,19 @@
+{
+    auto_https off
+    admin off
+}
+
+:3000 {
+    # Health check - no auth required (must be in separate handle block)
+    handle /api/platform/profile {
+        respond `{"disabled":false}` 200
+    }
+
+    # Everything else requires basic auth
+    handle {
+        basicauth {
+            STUDIO_USER STUDIO_HASH
+        }
+        reverse_proxy localhost:3001
+    }
+}

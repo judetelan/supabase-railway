@@ -5,8 +5,8 @@ USER root
 # Install Caddy for basic auth proxy
 RUN apk add --no-cache caddy
 
-# Copy auth proxy config
-COPY Caddyfile /etc/caddy/Caddyfile
+# Copy auth proxy config template and startup script
+COPY Caddyfile.template /etc/caddy/Caddyfile.template
 COPY start.sh /start.sh
 RUN chmod +x /start.sh
 
@@ -28,9 +28,6 @@ ENV DEFAULT_PROJECT_NAME="Default Project"
 
 EXPOSE 3000
 
-HEALTHCHECK --interval=10s --timeout=5s --start-period=30s --retries=3 \
-  CMD wget --no-verbose --tries=1 --spider http://localhost:3000/api/platform/profile || exit 1
-
-# Override base image entrypoint so our start.sh runs
+# Override base image entrypoint (docker-entrypoint.sh) so our start.sh runs
 ENTRYPOINT []
 CMD ["/bin/sh", "/start.sh"]
