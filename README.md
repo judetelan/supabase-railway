@@ -265,9 +265,8 @@ supabase-railway/
 |   +-- Caddyfile       # Reverse proxy + CORS config
 |   +-- railway.toml
 +-- studio/             # Supabase Dashboard (password protected)
-|   +-- Dockerfile      # Studio + Caddy auth sidecar
-|   +-- Caddyfile       # Basic auth config
-|   +-- start.sh        # Starts both Studio and Caddy
+|   +-- Dockerfile      # Multi-stage: Studio + Caddy binary
+|   +-- start.sh        # Starts Caddy auth proxy + Studio
 |   +-- railway.toml
 +-- edge-functions/     # Deno Edge Runtime
 |   +-- Dockerfile
