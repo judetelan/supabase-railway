@@ -43,98 +43,24 @@ A complete, production-ready self-hosted Supabase deployment on Railway with 11 
 
 ## Quick Start
 
-### 1. Fork & Deploy
+### Deploy from Template
 
-```bash
-# Fork this repo, then:
-git clone https://github.com/YOUR_USERNAME/supabase-railway.git
-cd supabase-railway
-railway link
-```
+Click the button below to deploy the full Supabase stack to Railway. All environment variables, internal networking, and service connections are configured automatically — no manual setup required.
 
-### 2. Generate Secrets
+[![Deploy on Railway](https://railway.com/button.svg)](https://railway.com/template/YOUR_TEMPLATE_ID)
 
-```bash
-# Generate a JWT secret (minimum 32 characters)
-openssl rand -hex 32
+Once deployed, you'll have:
+- A **Gateway URL** — this is your Supabase API endpoint (use it in your app)
+- A **Studio URL** — the Supabase dashboard (password protected)
 
-# Generate ANON_KEY (replace YOUR_JWT_SECRET)
-node -e "
-const crypto = require('crypto');
-const secret = 'YOUR_JWT_SECRET';
-const header = Buffer.from(JSON.stringify({alg:'HS256',typ:'JWT'})).toString('base64url');
-const payload = Buffer.from(JSON.stringify({role:'anon',iss:'supabase',iat:1700000000,exp:2000000000})).toString('base64url');
-const sig = crypto.createHmac('sha256',secret).update(header+'.'+payload).digest('base64url');
-console.log('ANON_KEY=' + header+'.'+payload+'.'+sig);
-"
-
-# Generate SERVICE_ROLE_KEY (replace YOUR_JWT_SECRET)
-node -e "
-const crypto = require('crypto');
-const secret = 'YOUR_JWT_SECRET';
-const header = Buffer.from(JSON.stringify({alg:'HS256',typ:'JWT'})).toString('base64url');
-const payload = Buffer.from(JSON.stringify({role:'service_role',iss:'supabase',iat:1700000000,exp:2000000000})).toString('base64url');
-const sig = crypto.createHmac('sha256',secret).update(header+'.'+payload).digest('base64url');
-console.log('SERVICE_ROLE_KEY=' + header+'.'+payload+'.'+sig);
-"
-
-# Generate Studio password hash
-docker run --rm caddy caddy hash-password --plaintext 'YourSecurePassword'
-```
-
-### 3. Set Environment Variables
-
-Set these on each Railway service via the dashboard or CLI.
-
-#### Shared (all services that validate JWTs)
-| Variable | Description |
-|----------|-------------|
-| `PGRST_JWT_SECRET` | Your JWT secret (hex, 32+ chars) |
-| `ANON_KEY` | JWT signed with `role: anon` |
-| `SERVICE_KEY` | JWT signed with `role: service_role` |
-
-#### Database (`supabase-db`)
-| Variable | Description |
-|----------|-------------|
-| `POSTGRES_PASSWORD` | Database password |
-| `POSTGRES_DB` | `postgres` |
-
-#### Gateway (`supabase-gateway`)
-| Variable | Description |
-|----------|-------------|
-| `CORS_ORIGIN` | Allowed origin (default: `*`) |
-
-#### Auth (`supabase-auth`)
-| Variable | Description |
-|----------|-------------|
-| `API_EXTERNAL_URL` | **Must be gateway URL** |
-| `GOTRUE_SITE_URL` | **Must be gateway URL** |
-| `GOTRUE_JWT_SECRET` | Same as `PGRST_JWT_SECRET` |
-| `GOTRUE_DB_DATABASE_URL` | Postgres connection string |
-
-#### Studio (`supabase-studio`)
-| Variable | Description |
-|----------|-------------|
-| `SUPABASE_URL` | **Must be gateway URL** (not PostgREST!) |
-| `SUPABASE_PUBLIC_URL` | **Must be gateway URL** |
-| `STUDIO_PG_META_URL` | Internal meta service URL |
-| `STUDIO_USERNAME` | Basic auth username (default: `admin`) |
-| `STUDIO_PASSWORD_HASH` | Bcrypt hash (from `caddy hash-password`) |
-
-#### Storage (`supabase-storage`)
-| Variable | Description |
-|----------|-------------|
-| `ANON_KEY` | Must be signed with the shared JWT secret |
-| `SERVICE_KEY` | Must be signed with the shared JWT secret |
-
-### 4. Connect Your App
+### Connect Your App
 
 ```javascript
 import { createClient } from '@supabase/supabase-js'
 
 const supabase = createClient(
   'https://YOUR-GATEWAY.up.railway.app',
-  'YOUR_ANON_KEY'
+  'YOUR_ANON_KEY'  // found in supabase-rest service variables
 )
 
 // Auth
@@ -275,6 +201,7 @@ supabase-railway/
 +-- imgproxy/           # Image transformations
 |   +-- Dockerfile
 |   +-- railway.toml
++-- brand-assets/       # Supabase logos (icon, wordmark light/dark)
 ```
 
 Services from Docker images (no source directory):
@@ -285,6 +212,51 @@ Services from Docker images (no source directory):
 - `supabase-meta` (supabase/postgres-meta:v0.84.2)
 - `supabase-minio` (minio/minio:latest)
 
+## Environment Variables Reference
+
+All variables are **pre-configured by the Railway template**. You don't need to set anything manually for a working deployment. This section is for reference only if you need to customize or debug.
+
+<details>
+<summary>Click to expand full variable reference</summary>
+
+#### Shared (all services that validate JWTs)
+| Variable | Description |
+|----------|-------------|
+| `PGRST_JWT_SECRET` | JWT secret (auto-generated) |
+| `ANON_KEY` | JWT signed with `role: anon` |
+| `SERVICE_KEY` | JWT signed with `role: service_role` |
+
+#### Database (`supabase-db`)
+| Variable | Description |
+|----------|-------------|
+| `POSTGRES_PASSWORD` | Database password (auto-generated) |
+| `POSTGRES_DB` | `postgres` |
+
+#### Auth (`supabase-auth`)
+| Variable | Description |
+|----------|-------------|
+| `API_EXTERNAL_URL` | Gateway URL (auto-wired) |
+| `GOTRUE_SITE_URL` | Gateway URL (auto-wired) |
+| `GOTRUE_JWT_SECRET` | Same as `PGRST_JWT_SECRET` |
+| `GOTRUE_DB_DATABASE_URL` | Postgres connection string (auto-wired) |
+
+#### Studio (`supabase-studio`)
+| Variable | Description |
+|----------|-------------|
+| `SUPABASE_URL` | Gateway URL (auto-wired) |
+| `SUPABASE_PUBLIC_URL` | Gateway URL (auto-wired) |
+| `STUDIO_PG_META_URL` | Internal meta service URL (auto-wired) |
+| `STUDIO_USERNAME` | Basic auth username (default: `admin`) |
+| `STUDIO_PASSWORD_HASH` | Bcrypt hash (default: hash of `123456`) |
+
+#### Storage (`supabase-storage`)
+| Variable | Description |
+|----------|-------------|
+| `ANON_KEY` | Signed with the shared JWT secret |
+| `SERVICE_KEY` | Signed with the shared JWT secret |
+
+</details>
+
 ## Common Pitfalls
 
 | Problem | Cause | Fix |
@@ -294,7 +266,6 @@ Services from Docker images (no source directory):
 | CORS: duplicate Access-Control-Allow-Origin | Upstream + gateway both add headers | Gateway strips upstream CORS via `header_down` |
 | Auth redirects to dead URL | API_EXTERNAL_URL points to old Kong | Set API_EXTERNAL_URL to the **gateway** URL |
 | Gateway deploy fails silently | Deployed from subdirectory | Deploy from **repo root** (`railway up -s supabase-gateway`) |
-| Caddy won't start | Invalid Caddyfile syntax | Check logs; `basic_auth` needs to be `basicauth` in Caddy 2 |
 
 ## Security
 
