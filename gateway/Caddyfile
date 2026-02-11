@@ -19,11 +19,11 @@
     @options method OPTIONS
     respond @options "" 204
 
-    # Auth routes - match anything starting with /auth/v1
+    # Auth routes
     route /auth/v1* {
         uri strip_prefix /auth/v1
-        reverse_proxy supabase-auth-production-c390.up.railway.app:443 {
-            header_up Host supabase-auth-production-c390.up.railway.app
+        reverse_proxy {$AUTH_HOST}:443 {
+            header_up Host {$AUTH_HOST}
             header_down -Access-Control-Allow-Origin
             header_down -Access-Control-Allow-Methods
             header_down -Access-Control-Allow-Headers
@@ -39,8 +39,8 @@
     # REST routes
     route /rest/v1* {
         uri strip_prefix /rest/v1
-        reverse_proxy supabase-rest-production.up.railway.app:443 {
-            header_up Host supabase-rest-production.up.railway.app
+        reverse_proxy {$REST_HOST}:443 {
+            header_up Host {$REST_HOST}
             header_down -Access-Control-Allow-Origin
             header_down -Access-Control-Allow-Methods
             header_down -Access-Control-Allow-Headers
@@ -56,8 +56,8 @@
     # Storage routes
     route /storage/v1* {
         uri strip_prefix /storage/v1
-        reverse_proxy supabase-storage-production-cfd8.up.railway.app:443 {
-            header_up Host supabase-storage-production-cfd8.up.railway.app
+        reverse_proxy {$STORAGE_HOST}:443 {
+            header_up Host {$STORAGE_HOST}
             header_down -Access-Control-Allow-Origin
             header_down -Access-Control-Allow-Methods
             header_down -Access-Control-Allow-Headers
@@ -72,8 +72,8 @@
 
     # Edge Functions routes
     route /functions/v1* {
-        reverse_proxy supabase-edge-functions-production.up.railway.app:443 {
-            header_up Host supabase-edge-functions-production.up.railway.app
+        reverse_proxy {$FUNCTIONS_HOST}:443 {
+            header_up Host {$FUNCTIONS_HOST}
             header_down -Access-Control-Allow-Origin
             header_down -Access-Control-Allow-Methods
             header_down -Access-Control-Allow-Headers
@@ -89,8 +89,8 @@
     # Realtime routes
     route /realtime/v1* {
         uri strip_prefix /realtime/v1
-        reverse_proxy supabase-realtime-production-8f0e.up.railway.app:443 {
-            header_up Host supabase-realtime-production-8f0e.up.railway.app
+        reverse_proxy {$REALTIME_HOST}:443 {
+            header_up Host {$REALTIME_HOST}
             header_down -Access-Control-Allow-Origin
             header_down -Access-Control-Allow-Methods
             header_down -Access-Control-Allow-Headers
